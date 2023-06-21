@@ -33,8 +33,9 @@ public class AccountController extends AbstractController {
 
     @PostMapping(value = "/create")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ResponseDTO<CreateResponseDTO> create(@RequestBody RequestVO requestVO) {
-        RequestDTO requestDTO = modelMapper.map(requestVO, RequestDTO.class);
-        return ResponseDTO.ok(ResultType.CREATE_ACCOUNT_SUCCESS, accountService.createAccount(requestDTO));
+    public ResponseDTO<CreateResponseVO> create(@RequestBody RequestVO requestVO) {
+        CreateRequestDTO requestDTO = modelMapper.map(requestVO, CreateRequestDTO.class);
+        CreateResponseVO responseVO = modelMapper.map(accountService.createAccount(requestDTO), CreateResponseVO.class);
+        return ResponseDTO.ok(ResultType.CREATE_ACCOUNT_SUCCESS, responseVO);
     }
 }

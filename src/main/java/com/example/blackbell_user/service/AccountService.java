@@ -4,5 +4,5 @@ import com.example.blackbell_user.dto.AccountDTO.*;
 
 public interface AccountService {
 
-    CreateResponseDTO createAccount(RequestDTO requestDTO);
+    CreateResponseDTO createAccount(CreateRequestDTO requestDTO);
 }

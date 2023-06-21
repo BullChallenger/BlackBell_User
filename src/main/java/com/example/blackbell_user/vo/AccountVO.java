@@ -25,4 +25,13 @@ public class AccountVO {
         private String password;
     }
 
+    @Getter
+    public static class CreateResponseVO {
+        private String email;
+
+        private String name;
+
+        private String accountId;
+    }
+
 }

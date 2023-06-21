@@ -12,7 +12,7 @@ public class AccountDTO {
     @Getter
     @Setter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class RequestDTO {
+    public static class CreateRequestDTO {
 
         private String email;
 
@@ -21,12 +21,6 @@ public class AccountDTO {
         private String password;
 
         private String accountId;
-
-        private String encryptedPassword;
-
-        private Date createdAt;
-        private Date updatedAt;
-        private boolean isDeleted;
     }
 
     @Getter
