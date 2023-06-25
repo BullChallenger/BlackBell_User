@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account-service")
+@RequestMapping("/accounts")
 public class AccountController extends AbstractController {
 
     private final Environment env;
@@ -35,7 +35,7 @@ public class AccountController extends AbstractController {
         return env.getProperty("greeting.message");
     }
 
-    @PostMapping(value = "/accounts/create")
+    @PostMapping(value = "/create")
     @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseDTO<CreateResponseVO> create(@RequestBody CreateRequestVO requestVO) {
         CreateRequestDTO requestDTO = modelMapper.map(requestVO, CreateRequestDTO.class);
@@ -43,7 +43,7 @@ public class AccountController extends AbstractController {
         return ResponseDTO.ok(ResultType.CREATE_ACCOUNT_SUCCESS, responseVO);
     }
 
-    @GetMapping(value = "/accounts")
+    @GetMapping
     public ResponseDTO<List<GetResponseVO>> readAll() {
         Iterable<AccountEntity> accountList = accountService.getAllAccounts();
 
@@ -55,7 +55,7 @@ public class AccountController extends AbstractController {
         return ResponseDTO.ok(ResultType.SUCCESS, responseVOList);
     }
 
-    @GetMapping(value = "/accounts/{accountId}")
+    @GetMapping(value = "/{accountId}")
     public ResponseDTO<GetResponseVO> read(@PathVariable("accountId") String accountId) {
         GetResponseDTO responseDTO = accountService.getAccountByAccountId(accountId);
         return ResponseDTO.ok(ResultType.SUCCESS, modelMapper.map(responseDTO, GetResponseVO.class));

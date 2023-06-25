@@ -9,6 +9,9 @@ import com.example.blackbell_user.vo.OrderVO;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.criterion.Order;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,15 @@ public class AccountServiceImpl implements AccountService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     private final AccountRepository accountRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        AccountEntity theAccount = accountRepository.findByEmail(email).orElseThrow(() -> {
+            throw new BaseException(ResultType.SYSTEM_ERROR);
+        });
+
+        return new User(theAccount.getEmail(), theAccount.getEncryptedPassword(), true, true, true, true, new ArrayList<>());
+    }
 
     @Override
     public CreateResponseDTO createAccount(CreateRequestDTO requestDTO) {
