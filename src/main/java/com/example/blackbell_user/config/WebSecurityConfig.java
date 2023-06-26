@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,6 +22,7 @@ public class WebSecurityConfig {
 
     private final ObjectMapper objectMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final Environment env;
 
     private final AccountService accountService;
 
@@ -37,7 +39,7 @@ public class WebSecurityConfig {
     }
     @Bean
     protected AuthenticationFilter authenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(objectMapper);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(objectMapper, env, accountService);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

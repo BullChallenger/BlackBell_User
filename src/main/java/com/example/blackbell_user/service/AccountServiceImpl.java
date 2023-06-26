@@ -66,4 +66,13 @@ public class AccountServiceImpl implements AccountService {
     public Iterable<AccountEntity> getAllAccounts() {
         return accountRepository.findAll();
     }
+
+    @Override
+    public GetResponseDTO getUserDetailsByEmail(String email) {
+        AccountEntity theAccount = accountRepository.findByEmail(email).orElseThrow(() -> {
+            throw new BaseException(ResultType.SYSTEM_ERROR);
+        });
+
+        return modelMapper.map(theAccount, GetResponseDTO.class);
+    }
 }

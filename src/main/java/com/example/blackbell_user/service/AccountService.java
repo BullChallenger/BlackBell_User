@@ -11,4 +11,6 @@ public interface AccountService extends UserDetailsService {
     GetResponseDTO getAccountByAccountId(String accountId);
 
     Iterable<AccountEntity> getAllAccounts();
+
+    GetResponseDTO getUserDetailsByEmail(String email);
 }
