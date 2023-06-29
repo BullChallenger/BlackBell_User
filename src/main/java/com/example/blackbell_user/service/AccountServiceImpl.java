@@ -2,6 +2,7 @@ package com.example.blackbell_user.service;
 
 import com.example.blackbell_user.constant.ResultType;
 import com.example.blackbell_user.dto.AccountDTO.*;
+import com.example.blackbell_user.dto.ResponseDTO;
 import com.example.blackbell_user.entity.AccountEntity;
 import com.example.blackbell_user.exception.BaseException;
 import com.example.blackbell_user.repository.AccountRepository;
@@ -9,11 +10,16 @@ import com.example.blackbell_user.vo.OrderVO;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.criterion.Order;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ public class AccountServiceImpl implements AccountService {
 
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Environment env;
+    private final RestTemplate restTemplate;
 
     private final AccountRepository accountRepository;
 
@@ -56,7 +64,13 @@ public class AccountServiceImpl implements AccountService {
         if (optionalAccount.isEmpty()) { throw new BaseException(ResultType.SYSTEM_ERROR); }
         GetResponseDTO responseDTO = modelMapper.map(optionalAccount.get(), GetResponseDTO.class);
 
-        List<OrderVO.GetResponseVO> orders = new ArrayList<>();
+        /* Using RestTemplate */
+        String orderUrl = String.format(env.getProperty("order_service.url"), accountId);
+        ResponseEntity<ResponseDTO<List<OrderVO.GetResponseVO>>> ordersResponse = restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+                new ParameterizedTypeReference<ResponseDTO<List<OrderVO.GetResponseVO>>>() {
+        });
+
+        List<OrderVO.GetResponseVO> orders = ordersResponse.getBody().getData();
         responseDTO.setOrders(orders);
 
         return responseDTO;

@@ -30,8 +30,10 @@ public class WebSecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .authorizeRequests().antMatchers("/actuator/**").permitAll()
+            .and()
                 .authorizeRequests().antMatchers("/**")
-                .hasIpAddress("192.168.0.8")
+                .hasIpAddress("192.168.219.101")
             .and()
                 .addFilter(authenticationFilter());
 
