@@ -33,7 +33,7 @@ public class WebSecurityConfig {
                 .authorizeRequests().antMatchers("/actuator/**").permitAll()
             .and()
                 .authorizeRequests().antMatchers("/**")
-                .hasIpAddress("192.168.219.101")
+                .hasIpAddress("192.168.219.100")
             .and()
                 .addFilter(authenticationFilter());
 

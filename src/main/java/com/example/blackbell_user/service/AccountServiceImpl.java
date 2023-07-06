@@ -1,5 +1,6 @@
 package com.example.blackbell_user.service;
 
+import com.example.blackbell_user.client.OrderServiceClient;
 import com.example.blackbell_user.constant.ResultType;
 import com.example.blackbell_user.dto.AccountDTO.*;
 import com.example.blackbell_user.dto.ResponseDTO;
@@ -7,7 +8,9 @@ import com.example.blackbell_user.entity.AccountEntity;
 import com.example.blackbell_user.exception.BaseException;
 import com.example.blackbell_user.repository.AccountRepository;
 import com.example.blackbell_user.vo.OrderVO;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.criterion.Order;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -38,6 +42,7 @@ public class AccountServiceImpl implements AccountService {
     private final RestTemplate restTemplate;
 
     private final AccountRepository accountRepository;
+    private final OrderServiceClient orderServiceClient;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -65,12 +70,14 @@ public class AccountServiceImpl implements AccountService {
         GetResponseDTO responseDTO = modelMapper.map(optionalAccount.get(), GetResponseDTO.class);
 
         /* Using RestTemplate */
-        String orderUrl = String.format(env.getProperty("order_service.url"), accountId);
-        ResponseEntity<ResponseDTO<List<OrderVO.GetResponseVO>>> ordersResponse = restTemplate.exchange(orderUrl, HttpMethod.GET, null,
-                new ParameterizedTypeReference<ResponseDTO<List<OrderVO.GetResponseVO>>>() {
-        });
+//        String orderUrl = String.format(env.getProperty("order_service.url"), accountId);
+//        ResponseEntity<ResponseDTO<List<OrderVO.GetResponseVO>>> ordersResponse = restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+//                new ParameterizedTypeReference<ResponseDTO<List<OrderVO.GetResponseVO>>>() {
+//        });
+//        List<OrderVO.GetResponseVO> orders = ordersResponse.getBody().getData();
 
-        List<OrderVO.GetResponseVO> orders = ordersResponse.getBody().getData();
+        /* Using a FeignClient */
+        List<OrderVO.GetResponseVO> orders = orderServiceClient.getOrders(accountId).getData();
         responseDTO.setOrders(orders);
 
         return responseDTO;
