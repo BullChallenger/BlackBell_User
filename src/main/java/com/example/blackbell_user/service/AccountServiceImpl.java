@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.criterion.Order;
 import org.modelmapper.ModelMapper;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
@@ -40,6 +42,8 @@ public class AccountServiceImpl implements AccountService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final Environment env;
     private final RestTemplate restTemplate;
+    // Error Decoder 가 아닌 circuitBreaker 사용
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     private final AccountRepository accountRepository;
     private final OrderServiceClient orderServiceClient;
@@ -77,7 +81,17 @@ public class AccountServiceImpl implements AccountService {
 //        List<OrderVO.GetResponseVO> orders = ordersResponse.getBody().getData();
 
         /* Using a FeignClient */
-        List<OrderVO.GetResponseVO> orders = orderServiceClient.getOrders(accountId).getData();
+        // Error Decoder 처리
+//        List<OrderVO.GetResponseVO> orders = orderServiceClient.getOrders(accountId).getData();
+
+        // CircuitBreaker 사용
+        /* zipkin 을 통한 분산추적 로그 */
+        log.info("Before call orders microservice");
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitBreaker");
+        List<OrderVO.GetResponseVO> orders = circuitBreaker.run(() -> orderServiceClient.getOrders(accountId).getData(),
+                                                            throwable -> new ArrayList<>());
+        log.info("After called orders microservice");
+
         responseDTO.setOrders(orders);
 
         return responseDTO;
